@@ -1,8 +1,56 @@
-/* SoroOS · application entry point */
 "use strict";
-
-(()=>{const nodes='section,.panel,.stat,.tasks,.file,.window,.person,.hero,canvas'.split(',').flatMap(s=>[...document.querySelectorAll(s)]);const unique=[...new Set(nodes)].filter(n=>!n.closest('.side'));if(!('IntersectionObserver'in window)){unique.forEach(n=>n.classList.add('visible'));return}const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.08});unique.forEach(n=>{n.classList.add('reveal');io.observe(n)});})();
-
-/* Application module */
-
-const $=s=>document.querySelector(s);let z=2;function openApp(name){let w=document.createElement('section');w.className='window';w.style.zIndex=++z;w.style.left=(22+Math.random()*22)+'%';w.style.top=(15+Math.random()*15)+'%';let content={Files:'<p>Your workspace is empty.</p><p class="muted">This is a simulated file manager.</p>',Notes:'<textarea placeholder="Write a note…"></textarea>',About:'<h2>SoroOS</h2><p>A browser-based desktop experiment by Soro.</p><p class="muted">Not an operating system.</p>'}[name];w.innerHTML='<header class="bar"><b>'+name+'</b><button class="close">×</button></header><div class="inside">'+content+'</div>';$('#windows').append(w);w.querySelector('.close').onclick=()=>w.remove();w.querySelector('.bar').onpointerdown=e=>{let x=e.clientX-w.offsetLeft,y=e.clientY-w.offsetTop;w.setPointerCapture(e.pointerId);w.onpointermove=q=>{w.style.left=(q.clientX-x)+'px';w.style.top=(q.clientY-y)+'px'};w.onpointerup=()=>w.onpointermove=null;};w.onpointerdown=()=>w.style.zIndex=++z;}document.querySelectorAll('[data-app]').forEach(b=>b.onclick=()=>openApp(b.dataset.app));function tick(){$('#now').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}tick();setInterval(tick,1000);openApp('About');
+const $ = selector => document.querySelector(selector);
+const NOTES_KEY = "soroos.notes.v1";
+let zIndex = 10;
+const notes = (() => { try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '""'); } catch { return ""; } })();
+function createWindow(name) {
+  const existing = document.querySelector('[data-window="' + name + '"]');
+  if (existing) { existing.hidden = false; existing.style.zIndex = ++zIndex; return; }
+  const win = document.createElement("section");
+  win.className = "window"; win.dataset.window = name;
+  win.style.zIndex = ++zIndex;
+  win.style.left = "calc(50% - 170px)"; win.style.top = "110px";
+  const bar = document.createElement("header"); bar.className = "bar";
+  const title = document.createElement("b"); title.textContent = name;
+  const actions = document.createElement("div");
+  const minimize = document.createElement("button"); minimize.type = "button"; minimize.textContent = "—"; minimize.title = "Minimize";
+  const close = document.createElement("button"); close.type = "button"; close.textContent = "×"; close.title = "Close";
+  actions.append(minimize, close); bar.append(title, actions);
+  const inside = document.createElement("div"); inside.className = "inside";
+  if (name === "Notes") {
+    const area = document.createElement("textarea"); area.placeholder = "Your notes are saved on this device…"; area.value = notes;
+    area.addEventListener("input", () => { try { localStorage.setItem(NOTES_KEY, JSON.stringify(area.value)); } catch {} });
+    inside.append(area);
+  } else if (name === "Files") {
+    const heading = document.createElement("h3"); heading.textContent = "Workspace";
+    const description = document.createElement("p"); description.textContent = "This browser desktop is a simulation. Files are not connected to your operating system.";
+    const openNotes = document.createElement("button"); openNotes.type = "button"; openNotes.textContent = "Open Notes"; openNotes.addEventListener("click", () => createWindow("Notes"));
+    inside.append(heading, description, openNotes);
+  } else {
+    const heading = document.createElement("h2"); heading.textContent = "SoroOS";
+    const description = document.createElement("p"); description.textContent = "A desktop-style environment running in your browser.";
+    const status = document.createElement("p"); status.className = "muted"; status.textContent = "Prototype · browser sandbox";
+    inside.append(heading, description, status);
+  }
+  win.append(bar, inside); $("#windows").append(win);
+  close.addEventListener("click", () => win.remove());
+  minimize.addEventListener("click", () => { win.hidden = true; });
+  win.addEventListener("pointerdown", () => win.style.zIndex = ++zIndex);
+  bar.addEventListener("pointerdown", event => {
+    if (event.target.closest("button")) return;
+    const rect = win.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left, offsetY = event.clientY - rect.top;
+    bar.setPointerCapture(event.pointerId);
+    const move = pointer => {
+      const maxX = window.innerWidth - win.offsetWidth;
+      const maxY = window.innerHeight - 48;
+      win.style.left = Math.max(0, Math.min(maxX, pointer.clientX - offsetX)) + "px";
+      win.style.top = Math.max(42, Math.min(maxY, pointer.clientY - offsetY)) + "px";
+    };
+    const end = () => { bar.removeEventListener("pointermove", move); bar.removeEventListener("pointerup", end); };
+    bar.addEventListener("pointermove", move); bar.addEventListener("pointerup", end, { once: true });
+  });
+}
+document.querySelectorAll("[data-app]").forEach(button => button.addEventListener("click", () => createWindow(button.dataset.app)));
+function updateClock() { $("#now").textContent = new Intl.DateTimeFormat(undefined, { weekday:"short", hour:"2-digit", minute:"2-digit" }).format(new Date()); }
+updateClock(); setInterval(updateClock, 30000); createWindow("About");
