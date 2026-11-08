@@ -1,28 +1,42 @@
 # SoroOS
 
-> A browser-based desktop environment.
+> A browser desktop experiment.
 
-An experimental web desktop with windows, a dock, draggable panels, and small built-in utilities. This is a browser experience, not an operating system kernel.
+A playful desktop shell running entirely in the browser. It demonstrates draggable windows, a dock and a small set of mock apps; it is not an operating system or a security boundary.
 
-## Technology
+## Features
 
-HTML, CSS, Vanilla JavaScript.
+- Draggable application windows
+- Dock-based app launcher
+- Clock and desktop layout
+- No installation or external dependencies
 
-## Roadmap
+## Tech stack
 
-- [ ] Desktop shell
-- [ ] Window manager
-- [ ] Dock and app launcher
-- [ ] Local settings
-- [ ] Built-in utilities
+HTML, CSS and vanilla JavaScript
 
-## Project status
+## Run locally
 
-Early development. Features are added incrementally and documented as they become available.
+Open `index.html` in a modern browser.
 
-## Contributing
+## Scope and limitations
 
-Issues and focused pull requests are welcome. Please describe the problem, expected behavior, and steps to reproduce bugs.
+Applications are UI demonstrations. They do not access the host operating system.
+
+## Project structure
+
+```
+SoroOS/
+├── index.html   # self-contained interface and application logic
+└── README.md    # overview, setup and scope
+```
+
+## Development principles
+
+- Keep the interface accessible, responsive and dependency-light.
+- Prefer clear, readable code over unnecessary abstractions.
+- Never commit credentials, private data or generated user files.
+- Document limitations honestly and add tests as the project grows.
 
 ## License
 
