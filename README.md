@@ -1,22 +1,22 @@
 # SoroOS
 
-A browser-based desktop environment experiment.
+A browser-based desktop environment experiment. It is a web application, not an operating system.
 
-## Features
-- Draggable application windows
-- Dock and desktop shortcuts
-- Clock and demo applications
-- No installation required
+## Current features
+- Desktop-style app launcher.
+- Draggable, focusable windows.
+- Minimize and close window controls.
+- Notes app with local persistence.
+- Live clock and responsive desktop surface.
+
+## Stack
+HTML, CSS, Vanilla JavaScript, localStorage.
 
 ## Run
-Open `index.html` in a modern browser.
+Open `index.html` through a local static web server.
 
-## Scope
-This is a browser UI experiment, not an operating system or security boundary. Demo apps do not access the host operating system.
+## Important limitations
+The browser sandbox cannot manage the computer's real files, processes, or system settings. The file manager is a simulated workspace.
 
-## Structure
-- `index.html` — desktop shell, styles and interactions
-- `README.md` — project documentation
-
-## License
-No license selected. All rights reserved until a license is added.
+## Roadmap
+Window snapping, keyboard shortcuts, desktop themes, simulated file operations, and accessibility improvements.
